@@ -268,9 +268,9 @@ Agent verifies new approach works
 | Ollama | Inference | Free | Yes |
 | Telegram | Interface | Free | No (service) |
 | Cron | Scheduling | Free | Yes |
-| Claude (optional) | Fallback reasoning | ~$0.02/msg | No |
+| GLM-5.2 (fallback, Mani & Scully) | Fallback reasoning when Kimi K3 is unavailable | OpenRouter credits | No |
 
-**Total recurring cost:** Essentially free (Telegram is free). Optional Claude API budget for complex reasoning.
+**Total recurring cost:** Essentially free (Telegram is free). OpenRouter credit usage for Kimi K3 and its GLM-5.2 fallback.
 
 ---
 
@@ -289,7 +289,7 @@ Agent verifies new approach works
 - [ ] Backup palace directory
 
 ### Monthly
-- [ ] Analyze API usage (if using Claude)
+- [ ] Analyze OpenRouter usage (Kimi K3 and GLM-5.2 fallback)
 - [ ] Review subagent performance
 - [ ] Audit self-improving lessons for patterns
 - [ ] Update skill documentation

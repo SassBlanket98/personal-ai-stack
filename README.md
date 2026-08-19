@@ -221,8 +221,8 @@ Prevents catastrophic mistakes like the June 7 keyring incident.
 
 **Core:**
 - OpenClaw (self-hosted AI gateway)
-- Kimi K3 via OpenRouter (primary model — default across all agents)
-- Claude Sonnet 4.6 (fallback when OpenRouter credits unavailable)
+- Kimi K3 via OpenRouter (primary model for Mani and Scully)
+- GLM-5.2 via OpenRouter (fallback for Mani and Scully when Kimi K3 is unavailable)
 - Gemma4:12b via Ollama (local inference — free, on-device)
 
 **Memory & Data:**
