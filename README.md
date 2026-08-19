@@ -80,7 +80,7 @@ The main operational agent. Proactive personal assistant with calendar awareness
 - Runs on Kimi K3 (default) with Claude Sonnet fallback
 
 ### 🚴 Mani — Sports Science Agent *(Flagship Deployment)*
-The standout real-world use case. Deployed for a professional cycling coach who uses Mani to design, manage, and adapt **training regimens for competitive cycling athletes**.
+The standout real-world use case. Deployed for a professional cyclist's own training business, used to design, manage, and adapt **training regimens for competitive cycling athletes**.
 
 **What Mani does in production:**
 - Builds periodised training plans tailored to individual athlete profiles
