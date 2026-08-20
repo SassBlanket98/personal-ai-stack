@@ -1,6 +1,6 @@
 # MemPalace Architecture — Agent Memory System Design
 
-**Purpose:** Long-term, semantic memory system for AI agents with 96.6% recall and zero cloud dependency.
+**Purpose:** Long-term, semantic memory system for AI agents with zero cloud dependency.
 
 **Design Pattern:** Local palace with structured wings, rooms, and drawers. Each agent has its own isolated palace (no cross-agent data bleeding).
 

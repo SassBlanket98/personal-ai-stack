@@ -3,7 +3,6 @@
 [![Multi-Agent](https://img.shields.io/badge/multi--agent-3_agents-blueviolet?style=flat-square)](https://github.com)
 [![Self-Hosted](https://img.shields.io/badge/infrastructure-self--hosted-green?style=flat-square)](https://github.com)
 [![Kimi K3](https://img.shields.io/badge/model-Kimi%20K3-blue?style=flat-square)](https://moonshotai.com)
-[![Memory: 96.6% Recall](https://img.shields.io/badge/memory%20recall-96.6%25-success?style=flat-square)](https://arxiv.org/abs/2407.01081)
 [![License: Private](https://img.shields.io/badge/license-private-red?style=flat-square)](#)
 
 ---
@@ -47,7 +46,7 @@ This architecture showcases complete end-to-end deployment of a real personal AI
   │  - Mani Palace (isolated)          │
   │  - Scully Palace (isolated)        │
   │                                    │
-  │  ✓ Semantic search (96.6% recall)  │
+  │  ✓ Semantic search                 │
   │  ✓ Temporal validity               │
   │  ✓ AAAK compressed diaries          │
   └────────────────────────────────────┘
@@ -98,7 +97,7 @@ Deployed for a family member with isolated memory palace and personalised toolse
 
 ## 🏛️ MemPalace — Semantic Memory System
 
-Persistent memory architecture achieving **96.6% recall** (top LongMemEval score published).
+Persistent memory architecture with semantic search and knowledge-graph backing.
 
 ### Core Features
 - **Palace Architecture:** Wings → Rooms → Drawers (hierarchical knowledge organization)
@@ -265,7 +264,6 @@ Prevents catastrophic mistakes like the June 7 keyring incident.
 ## Key Design Decisions
 
 ### Why MemPalace?
-- 96.6% recall rate beats traditional RAG
 - Semantic search + knowledge graph prevents "facts go stale"
 - Temporal validity (facts can expire) prevents false information
 - Palace architecture mirrors human memory (spatial + semantic)
@@ -293,7 +291,6 @@ Prevents catastrophic mistakes like the June 7 keyring incident.
 
 ## Results & Metrics
 
-- **Memory recall:** 96.6% (top published LongMemEval score)
 - **Agent uptime:** 99.2% (self-hosted, no SLA dependencies)
 - **Correction compounding:** 50+ domain lessons documented
 - **Context efficiency:** 3x reduction in re-explaining context through proactive buffer

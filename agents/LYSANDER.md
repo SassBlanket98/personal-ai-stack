@@ -11,7 +11,7 @@ The agent operates under a specific persona: **mate at the pub meets panel show 
 ## Core Capabilities
 
 ### 1. Context Management via Long-Term Memory
-- Maintains a local semantic memory palace (96.6% recall on past context)
+- Maintains a local semantic memory palace
 - Zero cloud dependency — all memory stored locally
 - Structured filing system (personal, work, code, integrations, lessons)
 - Automatic diary compression (summarizes sessions in real-time)
