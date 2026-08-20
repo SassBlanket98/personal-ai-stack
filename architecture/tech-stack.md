@@ -268,7 +268,7 @@ Agent verifies new approach works
 | Ollama | Inference | Free | Yes |
 | Telegram | Interface | Free | No (service) |
 | Cron | Scheduling | Free | Yes |
-| GLM-5.2 (fallback, Mani & Scully) | Fallback reasoning when Kimi K3 is unavailable | OpenRouter credits | No |
+| GLM-5.2 (fallback, all agents) | Fallback reasoning when Kimi K3 is unavailable, plus scheduled jobs needing real judgement | OpenRouter credits | No |
 
 **Total recurring cost:** Essentially free (Telegram is free). OpenRouter credit usage for Kimi K3 and its GLM-5.2 fallback.
 

@@ -77,7 +77,7 @@ The main operational agent. Proactive personal assistant with calendar awareness
 - Sobriety wellness tracking with trigger detection
 - Task orchestration and sub-agent spawning
 - Session-to-session memory continuity
-- Runs on Kimi K3 (default) with Claude Sonnet fallback
+- Runs on Kimi K3 (default) with GLM-5.2 fallback. Scheduled background jobs are tiered by how much reasoning they need: lightweight recurring tasks run locally on gemma4:12b, jobs that need real judgement run on GLM-5.2
 
 ### 🚴 Mani — Sports Science Agent *(Flagship Deployment)*
 The standout real-world use case. Deployed for a professional cyclist's own training business, used to design, manage, and adapt **training regimens for competitive cycling athletes**.
@@ -221,9 +221,9 @@ Prevents catastrophic mistakes like the June 7 keyring incident.
 
 **Core:**
 - OpenClaw (self-hosted AI gateway)
-- Kimi K3 via OpenRouter (primary model for Mani and Scully)
-- GLM-5.2 via OpenRouter (fallback for Mani and Scully when Kimi K3 is unavailable)
-- Gemma4:12b via Ollama (local inference — free, on-device)
+- Kimi K3 via OpenRouter (primary model, all three agents)
+- GLM-5.2 via OpenRouter (fallback across all three agents when Kimi K3 is unavailable; also handles scheduled jobs that need real judgement)
+- Gemma4:12b via Ollama (local inference — free, on-device; also runs lightweight scheduled tasks)
 
 **Memory & Data:**
 - ChromaDB (vector database)
