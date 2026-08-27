@@ -1,348 +1,55 @@
 # personal-ai-stack
 
-[![Multi-Agent](https://img.shields.io/badge/multi--agent-3_agents-blueviolet?style=flat-square)](https://github.com)
-[![Self-Hosted](https://img.shields.io/badge/infrastructure-self--hosted-green?style=flat-square)](https://github.com)
-[![Kimi K3](https://img.shields.io/badge/model-Kimi%20K3-blue?style=flat-square)](https://moonshotai.com)
-[![License: Private](https://img.shields.io/badge/license-private-red?style=flat-square)](#)
-
----
-
 ## Overview
 
-A production multi-agent AI system built on **OpenClaw** — a self-hosted AI gateway for deploying isolated, persistent AI agents with semantic memory, proactive automation, and self-improving feedback loops.
+A self-hosted multi-agent setup I run for my own day-to-day work: research, planning, and general automation. It's built on OpenClaw, with MemPalace (open source) handling memory, and each agent gets its own scoped memory and toolset rather than one shared context for everything.
 
-This architecture showcases complete end-to-end deployment of a real personal AI fleet: agent design, memory architecture, safety boundaries, and operational tooling — all running on self-hosted infrastructure with zero external dependencies for execution.
+## Architecture, in short
 
----
+Agents run through a self-hosted OpenClaw gateway. Each has its own memory palace and its own tool scope, so one agent's context doesn't casually mix into another's. That's a design goal I actively work at, not a guarantee: memory boundaries on a system like this need ongoing attention, and I've had to fix a cross-agent memory leak before rather than assume it couldn't happen.
 
-## Architecture
+Model routing varies by task and is reviewed as the system changes. Memory runs through MemPalace (open source), which I've integrated and extended with my own diary and checkpoint workflows on top of it.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    OpenClaw Gateway                          │
-│  (Self-hosted AI orchestration & safety boundary)           │
-└──────────┬──────────────────────────────────────────────────┘
-           │
-    ┌──────┴────────┬──────────────────┬──────────────────┐
-    │               │                  │                  │
-    ▼               ▼                  ▼                  ▼
-┌─────────┐   ┌──────────┐      ┌──────────┐      ┌──────────┐
-│LYSANDER │   │  MANI    │      │  SCULLY  │      │ GEMMA4   │
-│(Primary)│   │ (Family) │      │ (Family) │      │(Local    │
-│         │   │          │      │          │      │Inference)│
-│ Kimi K3 │   │ Kimi K3  │      │ Kimi K3  │      │          │
-│(default)│   │(default) │      │(default) │      │ Free     │
-└────┬────┘   └────┬─────┘      └────┬─────┘      └──────────┘
-     │             │                 │
-     │             │                 │
-     ├─────────────┼─────────────────┤
-     │             │                 │
-     ▼             ▼                 ▼
-  ┌────────────────────────────────────┐
-  │  MemPalace: Isolated Memory Palaces │
-  │  (ChromaDB + Knowledge Graph)       │
-  │                                    │
-  │  - Lysander Palace (359MB, 70K+)   │
-  │  - Mani Palace (isolated)          │
-  │  - Scully Palace (isolated)        │
-  │                                    │
-  │  ✓ Semantic search                 │
-  │  ✓ Temporal validity               │
-  │  ✓ AAAK compressed diaries          │
-  └────────────────────────────────────┘
-     │             │                 │
-     └─────────────┼─────────────────┘
-                   │
-        ┌──────────┴──────────┐
-        │                     │
-        ▼                     ▼
-  ┌──────────────┐      ┌──────────────┐
-  │   Telegram   │      │   Calendar   │
-  │  Integration │      │  / SSH / Git │
-  │   (Chat I/O) │      │  (Execution) │
-  └──────────────┘      └──────────────┘
-```
+## Proactive agent protocols
 
----
+A few patterns I use here first, before carrying them into client work:
 
-## Agent Roster
+- **Write-ahead logging**: decisions and corrections get written to session state before the agent acts, not after, so a crash or reset doesn't lose the reasoning behind a change.
+- **Working buffer**: a verbatim capture of the conversation kicks in as context fills up, so a context reset doesn't mean starting over.
+- **Self-reflection before non-trivial tasks**: an agent checks its own prior corrections on a topic before repeating work, so the same mistake doesn't happen twice.
 
-### 🎯 Lysander — Primary Personal Agent
-The main operational agent. Proactive personal assistant with calendar awareness, task orchestration, and wellness tracking.
+## Safety practices
 
-**Capabilities:**
-- Daily check-ins and routine monitoring
-- Calendar parsing and event auto-drafting
-- Sobriety wellness tracking with trigger detection
-- Task orchestration and sub-agent spawning
-- Session-to-session memory continuity
-- Runs on Kimi K3 (default) with GLM-5.2 fallback. Scheduled background jobs are tiered by how much reasoning they need: lightweight recurring tasks run locally on gemma4:12b, jobs that need real judgement run on GLM-5.2
+Destructive commands (deleting things, killing processes) go through a check first: has this come up before, is there a documented reason not to do it, what's the safer alternative. This exists because skipping that step once led to a bad outcome, not because I assumed the risk in advance.
 
-### 🚴 Mani — Sports Science Agent *(Flagship Deployment)*
-The standout real-world use case. Deployed for a professional cyclist's own training business, used to design, manage, and adapt **training regimens for competitive cycling athletes**.
+## Tech stack
 
-**What Mani does in production:**
-- Builds periodised training plans tailored to individual athlete profiles
-- Tracks athlete performance data and adjusts load/intensity accordingly
-- Maintains a persistent memory palace per athlete — form history, injury flags, PB records
-- Surfaces pattern insights across the athlete roster (e.g. who's overreaching, who's under-stimulated)
-- Handles coach–athlete communication templates and progress reports
-
-This is a live professional deployment. Real athletes. Real training outcomes. Not a demo.
-
-### 🔍 Scully — Family Support Agent
-Deployed for a family member with isolated memory palace and personalised toolset. Completely separate from Mani and Lysander — zero cross-contamination.
-
----
-
-## 🏛️ MemPalace — Semantic Memory System
-
-Persistent memory architecture with semantic search and knowledge-graph backing.
-
-### Core Features
-- **Palace Architecture:** Wings → Rooms → Drawers (hierarchical knowledge organization)
-- **Vector Search:** ChromaDB with HNSW index for semantic retrieval
-- **Knowledge Graph:** Temporal validity tracking (facts expire correctly)
-- **Diary Format:** AAAK compressed entries for session continuity
-- **Isolation:** Each agent maintains completely separate palace — no data leakage
-- **Compaction Recovery:** Survives context window resets without losing critical information
-
-### Memory Structure
-```
-wing_lysander/
-├── diary/              # AAAK-format session logs
-├── decisions/          # Operational decisions
-├── corrections/        # Mistakes + lessons (prevent repeats)
-├── rules/              # Permanent safety rules
-├── sobriety-tracker/   # Wellness check-in data
-└── general/            # Miscellaneous
-
-work/
-├── infrastructure/     # Network topology, services
-├── client-projects/    # Active client work
-├── career/            # Skills, certs, interview prep
-└── code/
-
-code/
-├── network-rpg/       # Python/Flask projects
-└── personal-projects/
-```
-
----
-
-## 🦞 Proactive Agent Protocols
-
-Transforms agents from task-followers into anticipatory partners that continuously improve.
-
-### WAL Protocol (Write-Ahead Log)
-Decisions recorded to `SESSION-STATE.md` **before** taking action. Enables recovery and audit trails.
-
-### Working Buffer
-Context that survives compaction — critical decisions and lessons preserved across context resets.
-
-### Calendar Harvesting
-Parses natural conversation for date/time mentions. Auto-drafts calendar events. Eliminates "I forgot to calendar that" failure mode.
-
-### Compaction Recovery
-After context loss, reads working buffer first. Agents resume with full operational context.
-
-### Self-Reflection
-Mandatory pre-task memory reads. Prevents repeated mistakes. Every correction is logged and compounded.
-
----
-
-## 🧠 Self-Improving Loop
-
-Permanent quality improvement through systematic correction logging.
-
-### Execution
-1. **Mandatory reads** before non-trivial tasks (memory.md + domain-specific lessons)
-2. **Immediate logging** of corrections (not batched, not deferred)
-3. **Domain separation:** coding, auth systems, communications, infrastructure
-4. **Compounding quality:** Mistakes become permanent rules
-
-### Example: Auth Systems
-- Fixed GNOME keyring corruption (June 28)
-- Documented file-based backend risks (GitHub issue #377)
-- Created permanent rules: "NO file-based keyring. NEVER."
-- Result: No repeated auth disasters
-
----
-
-## ⚙️ Infrastructure & Tooling
-
-### Execution Layer
-- **SSH key separation:** Work vs personal accounts (GitHub, GitLab)
-- **Local inference:** Gemma4 via Ollama (free, instant, on-device)
-- **Subagent orchestration:** Parallel background task execution
-- **Cron scheduling:** Morning/evening check-ins, routine monitoring, reminders
-- **Elevated permissions:** System-level automation (firewall, updates, backups)
-
-### Integration Points
-- **Telegram:** Natural-language chat interface (Telegram Bot API)
-- **Google Workspace:** Calendar, Gmail, Drive, Contacts (via GOG CLI)
-- **Git:** Feature branch workflow, automated commit/PR creation
-- **Linux:** Bash scripting, systemd, firewall rules
-
----
-
-## 🛡️ Safety Architecture
-
-### Destructive Action Gate
-Before any destructive command (`rm`, `truncate`, `kill`, `pkill`):
-1. Mandatory MemPalace search for system history
-2. Verify no prior corrections exist (last 30 days)
-3. Answer: evidence, palace history, risks, alternatives
-4. Forbidden responses: "nuke and start fresh"
-
-Prevents catastrophic mistakes like the June 7 keyring incident.
-
-### Auth System Protection
-- GNOME keyring only (hardened backend)
-- File-based keyring explicitly banned
-- No backend switching without explicit approval
-- Permanent rules, not recoverable
-
-### Git Safety Rules
-- **Never** push to main/master (always feature branch)
-- **Never** force push
-- **Never** delete branches
-- **Never** merge own PRs
-
-### Memory Isolation
-- **Palace prefix lockdown:** `mempalace-lysander__` tools only (never touch other agents' palaces)
-- Cross-contamination incident (June 28): 4 sobriety entries bled to Mani's palace
-- Now: Permanent rule with automated tool-name verification
-
----
-
-## 🔧 Tech Stack
-
-**Core:**
 - OpenClaw (self-hosted AI gateway)
-- Kimi K3 via OpenRouter (primary model, all three agents)
-- GLM-5.2 via OpenRouter (fallback across all three agents when Kimi K3 is unavailable; also handles scheduled jobs that need real judgement)
-- Gemma4:12b via Ollama (local inference — free, on-device; also runs lightweight scheduled tasks)
+- Model routing selected per task and reviewed as the system changes
+- MemPalace (open source), ChromaDB-backed
+- Telegram for chat I/O; Google Workspace and Git for scheduling and automation
 
-**Memory & Data:**
-- ChromaDB (vector database)
-- HNSW (similarity search index)
-- SQLite (metadata/temporal tracking)
+## Key design decisions
 
-**Integration:**
-- Telegram Bot API
-- Google Workspace APIs (Calendar, Gmail, Drive)
-- Git / GitHub API
-- SSH / OpenSSH
+**Why self-hosted.** I want to be able to change gateway behavior directly rather than work around a vendor's constraints, and I'd rather personal data sit on infrastructure I control.
 
-**Infrastructure:**
-- Linux (Ubuntu/Debian)
-- Bash scripting
-- Systemd (scheduling)
-- Node.js (OpenClaw runtime)
+**Why per-agent memory scoping.** Keeping each agent's memory separate limits how far a mistake in one context can spread. It isn't a perfect boundary. I've had memory bleed between agents before and fixed it after the fact; the goal is to keep tightening that boundary, not to claim it's closed.
 
----
+**Why write-ahead logging and a working buffer.** Long-running agent sessions eventually hit a context reset. Recording decisions as they happen, rather than after, means a reset costs time, not the reasoning behind what was already decided.
 
-## Deployment Model
+## Lessons
 
-**Where:** Self-hosted on personal infrastructure (Linux desktop)
+- A destructive-action check is worth the extra step. I added one after a bad outcome from skipping it, not before.
+- Memory isolation between agents takes active maintenance. I've had a leak between two agents' memory before; the fix was a stricter, automated check, not just a rule written down somewhere.
 
-**Isolation:**
-- Three independent agent instances (Lysander, Mani, Scully)
-- Each agent has isolated memory, toolset, and execution context
-- Zero external cloud dependencies for core execution
-- Logging/backups to private storage
+## Getting started
 
-**Scaling:**
-- Current: 3 agents
-- Memory per agent: ~100-400MB (palace size varies)
-- Model inference: Local via Ollama + Claude API (batched)
-- Dashboard: None yet (terminal-based for now)
+This is a personal deployment, not open-source, but the architecture and decisions are documented here for reference.
+
+## Contact
+
+Architected and operated by David Hill. Available for consulting on AI architecture, personal automation, and self-hosted infrastructure.
 
 ---
 
-## Key Design Decisions
-
-### Why MemPalace?
-- Semantic search + knowledge graph prevents "facts go stale"
-- Temporal validity (facts can expire) prevents false information
-- Palace architecture mirrors human memory (spatial + semantic)
-
-### Why Self-Hosted?
-- Complete privacy and control
-- No vendor lock-in
-- Free local inference (Gemma4)
-- Ability to modify gateway behavior
-- Sensitive data never leaves infrastructure
-
-### Why Multiple Agents?
-- Isolated personas and memory (no bleeding)
-- Different users can have different ML models/toolsets
-- Natural scaling to family deployments
-- Clear responsibility boundaries
-
-### Why Proactive Protocols?
-- WAL prevents silent failure
-- Working buffer survives context loss
-- Calendar harvesting eliminates manual entry
-- Self-improving loop prevents mistakes compounding
-
----
-
-## Results & Metrics
-
-- **Agent uptime:** 99.2% (self-hosted, no SLA dependencies)
-- **Correction compounding:** 50+ domain lessons documented
-- **Context efficiency:** 3x reduction in re-explaining context through proactive buffer
-- **Automation win:** ~15 hours/week saved through cron + calendar harvesting
-
----
-
-## Future Roadmap
-
-- [ ] Multi-modal memory (document OCR, image context)
-- [ ] Voice integration (STT/TTS for hands-free interaction)
-- [ ] Automated backup & replication
-- [ ] Real-time collaboration features (shared task context)
-- [ ] Cost tracking & optimization dashboard
-- [ ] Web dashboard for non-terminal users
-
----
-
-## Lessons Learned
-
-### On Memory Architecture
-File-based keystores are **fucked**. Don't use them. GNOME keyring or equivalent only. (GitHub issue #377)
-
-### On Safety
-A destructive action gate saves lives. Add mandatory checks before any irreversible operation.
-
-### On Scaling Agents
-Memory isolation is non-negotiable. One breached boundary = a real incident requiring manual cleanup.
-
-### On Proactive Automation
-Calendar harvesting eliminates an entire category of "I forgot to calendar that" failures. Worth the small inference cost.
-
----
-
-## Getting Started
-
-This is a personal/family deployment. It's not open-source, but the architecture and decisions are documented for reference.
-
-### To Deploy Your Own
-1. Set up OpenClaw on Linux (see [OpenClaw docs](https://openclaw.com))
-2. Configure MemPalace palace paths
-3. Create agent personas and memory structures
-4. Wire up Telegram integration
-5. Set up Ollama for local inference
-6. Configure safety rules and destructive action gates
-
----
-
-## Architected and deployed by David Hill
-
-**Contact:** Available for consulting on AI architecture, personal automation, and self-hosted infrastructure.
-
----
-
-**Last updated:** 2026-08-04 | **Status:** Production
+**Last updated:** 2026-08-27
