@@ -8,7 +8,17 @@ A self-hosted multi-agent setup I run for my own day-to-day work: research, plan
 
 Agents run through a self-hosted OpenClaw gateway. Each has its own memory palace and its own tool scope, so one agent's context doesn't casually mix into another's. That's a design goal I actively work at, not a guarantee: memory boundaries on a system like this need ongoing attention, and I've had to fix a cross-agent memory leak before rather than assume it couldn't happen.
 
-Model routing varies by task and is reviewed as the system changes. Memory runs through MemPalace (open source), which I've integrated and extended with my own diary and checkpoint workflows on top of it.
+Model routing varies by agent and task, and is reviewed as the system changes. Memory runs through MemPalace (open source), which I've integrated and extended with my own diary and checkpoint workflows on top of it.
+
+### Interactive agent routing (as of 2026-08-30)
+
+| Agent | Primary model | Fallback | Access |
+| --- | --- | --- | --- |
+| Lysander | GPT-5.6 Terra | GPT-5.6 Sol | OpenAI Codex subscription |
+| Mani | Kimi K3 | GLM-5.2 | OpenRouter |
+| Scully | Kimi K3 | GLM-5.2 | OpenRouter |
+
+This covers the three interactive agents only. Scheduled-job routing is kept out of the public architecture summary.
 
 ## Proactive agent protocols
 
@@ -25,7 +35,7 @@ Destructive commands (deleting things, killing processes) go through a check fir
 ## Tech stack
 
 - OpenClaw (self-hosted AI gateway)
-- Model routing selected per task and reviewed as the system changes
+- Per-agent model routing: OpenAI Codex for Lysander; OpenRouter for Mani and Scully
 - MemPalace (open source), ChromaDB-backed
 - Telegram for chat I/O; Google Workspace and Git for scheduling and automation
 
@@ -52,4 +62,4 @@ Architected and operated by David Hill. Available for consulting on AI architect
 
 ---
 
-**Last updated:** 2026-08-27
+**Last updated:** 2026-08-30

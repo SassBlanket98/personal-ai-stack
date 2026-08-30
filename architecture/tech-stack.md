@@ -268,9 +268,9 @@ Agent verifies new approach works
 | Ollama | Inference | Free | Yes |
 | Telegram | Interface | Free | No (service) |
 | Cron | Scheduling | Free | Yes |
-| GLM-5.2 (fallback, all agents) | Fallback reasoning when Kimi K3 is unavailable, plus scheduled jobs needing real judgement | OpenRouter credits | No |
+| Interactive-agent model routing | See the current routing matrix in the README: Lysander uses OpenAI Codex; Mani and Scully use OpenRouter | Subscription / credits | No |
 
-**Total recurring cost:** Essentially free (Telegram is free). OpenRouter credit usage for Kimi K3 and its GLM-5.2 fallback.
+**Total recurring cost:** OpenAI Codex subscription for Lysander, OpenRouter usage for Mani and Scully, plus the self-hosted infrastructure and connected services.
 
 ---
 
