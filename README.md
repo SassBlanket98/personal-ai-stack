@@ -10,15 +10,30 @@ Agents run through a self-hosted OpenClaw gateway. Each has its own memory palac
 
 Model routing varies by agent and task, and is reviewed as the system changes. Memory runs through MemPalace (open source), which I've integrated and extended with my own diary and checkpoint workflows on top of it.
 
-### Interactive agent routing (as of 2026-08-30)
+### Interactive agent routing (as of 2026-10-09)
 
 | Agent | Primary model | Fallback | Access |
 | --- | --- | --- | --- |
-| Lysander | GPT-5.6 Terra | GPT-5.6 Sol | OpenAI Codex subscription |
-| Mani | Kimi K3 | GLM-5.2 | OpenRouter |
-| Scully | Kimi K3 | GLM-5.2 | OpenRouter |
+| Lysander | GPT-6 Sol | GPT-5.6 Sol | OpenAI Codex subscription |
+| Mani | GLM-5.2 | Kimi K3 | OpenRouter |
+| Scully | GPT-5.6 Terra | none | OpenAI Codex subscription |
+| Onyx | Ornith 1.5 9B (Q8) | none | Local, llama.cpp on an RTX 5070 Ti |
 
-This covers the three interactive agents only. Scheduled-job routing is kept out of the public architecture summary.
+This covers the interactive agents only. Scheduled-job routing is kept out of the public architecture summary.
+
+## Onyx: the local agent
+
+Onyx is the assistant I talk to most, over Telegram. It runs on a 9B model on my own GPU, so day-to-day chat costs nothing per message and stays on the machine.
+
+A model that size makes mistakes a larger one would not, so most of the work has gone into deciding what it is allowed to do by itself:
+
+- **It hands work over.** For anything that needs planning or code changes, Onyx starts a job and relays the result. The job runs through [onyx-pipeline](https://github.com/SassBlanket98/onyx-pipeline): investigate, plan, build, verify, review and summary, each stage on a model suited to it, with a stop for my approval after the plan.
+- **Guards sit in code.** A gateway plugin blocks the failures I have seen in live use, such as checking a job's status over and over in one turn, or answering a question itself after handing it off. The same rules are in its prompt, but a small model does not follow a prompt every time.
+- **Private memory stays local.** Onyx's memory is a set of cards, searched with an embedding model that runs on the CPU. Cards I mark private are only ever read by the local model. When a hosted model helps rank results, it sees public card titles and first lines only.
+
+I'm currently building a frozen test suite of real orchestration prompts and a training set, to find out whether a LoRA fine-tune makes the local model more reliable at this job. No fine-tuned model is in use yet.
+
+Two tools came out of this work and are public: [model-ladder](https://github.com/SassBlanket98/model-ladder), which finds the cheapest model that can do each kind of job, and [local-llm-bench](https://github.com/SassBlanket98/local-llm-bench), which benchmarks local models as coding workers.
 
 ## Proactive agent protocols
 
@@ -35,8 +50,9 @@ Destructive commands (deleting things, killing processes) go through a check fir
 ## Tech stack
 
 - OpenClaw (self-hosted AI gateway)
-- Per-agent model routing: OpenAI Codex for Lysander; OpenRouter for Mani and Scully
-- MemPalace (open source), ChromaDB-backed
+- Per-agent model routing: OpenAI Codex for Lysander and Scully; OpenRouter for Mani; a local model for Onyx
+- llama.cpp serving Ornith 1.5 9B for Onyx, with EmbeddingGemma on CPU for memory search
+- MemPalace (open source), ChromaDB-backed, served to Lysander, Mani and Scully as one MCP server per agent
 - Telegram for chat I/O; Google Workspace and Git for scheduling and automation
 
 ## Key design decisions
@@ -62,4 +78,4 @@ Architected and operated by David Hill. Available for consulting on AI architect
 
 ---
 
-**Last updated:** 2026-08-30
+**Last updated:** 2026-10-09
